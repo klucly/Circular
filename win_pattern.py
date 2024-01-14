@@ -8,6 +8,10 @@ class Pattern_generator: ...
 class Layer: ...
 
 
+Baked_positions = list[np.ndarray[complex]]
+Pos_2d = tuple[float, float]
+
+
 class Window_manager:
     def __init__(self) -> None:
         self.clock = pygame.time.Clock()
@@ -36,11 +40,11 @@ class Window_manager:
         if key == pygame.K_SPACE:
             pattern.generate_random_pattern()
 
-    def render(self, baked: list[np.ndarray[complex]]):
+    def render(self, baked: Baked_positions) -> None:
         for connected_figure in baked:
             self._render_connected_figure(connected_figure)
 
-    def _render_connected_figure(self, connected_figure: np.ndarray[complex]):
+    def _render_connected_figure(self, connected_figure: np.ndarray[complex]) -> None:
         for pos1, pos2 in zip(connected_figure, connected_figure[1:]):
             self._draw_complex_line(pos1, pos2, **self.render_styles)
         self._draw_complex_line(connected_figure[0], connected_figure[-1], **self.render_styles)
@@ -48,11 +52,11 @@ class Window_manager:
     def _draw_complex_line(self, pos1: complex, pos2: complex, color=(255,255,255), **line_kwargs) -> None:
         self.draw_line(self._decomplex(pos1), self._decomplex(pos2), color=color, **line_kwargs)
     
-    def draw_line(self, pos1: tuple[float, float], pos2: tuple[float, float], color=(255,255,255), **line_kwargs) -> None:
+    def draw_line(self, pos1: Pos_2d, pos2: Pos_2d, color=(255,255,255), **line_kwargs) -> None:
         pygame.draw.line(self.display, color, pos1, pos2, **line_kwargs)
 
     @staticmethod
-    def _decomplex(x: complex) -> tuple[float, float]:
+    def _decomplex(x: complex) -> Pos_2d:
         return x.real, x.imag
 
     def update_scene(self) -> None:
@@ -108,14 +112,14 @@ class Pattern_generator:
             for _ in range(amount)
         ]
     
-    def bake(self, offset: float):
+    def bake(self, offset: float) -> Baked_positions:
         baked_result = []
         for layer in self.layers:
             baked_result += self.bake_layer(layer, offset)
         return baked_result
 
     @classmethod
-    def bake_layer(cls, layer: Layer, offset: float) -> list[np.ndarray[complex]]:
+    def bake_layer(cls, layer: Layer, offset: float) -> Baked_positions:
         baked_figures = []
         for connected_shape in layer.virtual_coords:
             baked_figures.append(cls._bake_virtual(connected_shape + offset, RADIUS))
@@ -298,7 +302,7 @@ class Virtual_coords_wrapper:
         del self.ready_positions[0][-1]
 
     @classmethod
-    def _pos_in_bounds(cls, position):
+    def _pos_in_bounds(cls, position) -> bool:
         # Is in 0..1 check
         return position > 1e-3 and position < 1-1e-3
 

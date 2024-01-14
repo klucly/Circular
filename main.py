@@ -17,12 +17,12 @@ def update_win_pattern_loop(window: Window_manager, pattern: Pattern_generator) 
     display_update(window, pattern)
 
 
-def display_update(window: Window_manager, pattern: Pattern_generator):
+def display_update(window: Window_manager, pattern: Pattern_generator) -> None:
     render_pattern(window, pattern)
     window.update_scene()
 
 
-def render_pattern(window: Window_manager, pattern: Pattern_generator):
+def render_pattern(window: Window_manager, pattern: Pattern_generator) -> None:
     baked = pattern.bake(pattern.offset)
     window.render(baked)
 
